@@ -1,0 +1,29 @@
+```mermaid
+sequenceDiagram
+    participant Source as Log Source
+    participant Kinesis as Kinesis Stream
+    participant Parser as Parser Lambda
+    participant Enricher as Enricher Lambda
+    participant OS as OpenSearch
+    participant Rules as Detection Rules
+    participant Alert as Alert System
+    participant Analyst as Security Analyst
+
+    Source->>Kinesis: Send log event
+    Kinesis->>Parser: Trigger processing
+    Parser->>Parser: Parse & normalize
+    Parser->>Enricher: Forward parsed event
+    Enricher->>Enricher: Add threat intel, geo, user context
+    
+    par Store & Detect
+        Enricher->>OS: Index enriched event
+    and
+        Enricher->>Rules: Evaluate detection rules
+    end
+
+    alt Threat Detected
+        Rules->>Alert: Trigger alert
+        Alert->>Analyst: Send notification
+        Analyst->>OS: Investigate in dashboard
+    end
+```

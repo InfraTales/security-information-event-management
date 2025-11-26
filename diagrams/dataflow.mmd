@@ -1,0 +1,47 @@
+```mermaid
+graph LR
+    subgraph Sources["Log Sources"]
+        AWS[AWS Services]
+        OnPrem[On-Premise]
+        SaaS[SaaS Apps]
+    end
+
+    subgraph Ingestion["Ingestion"]
+        Kinesis[Kinesis Streams]
+        Agents[Log Agents]
+    end
+
+    subgraph Processing["Processing"]
+        Parse[Parse & Normalize]
+        Enrich[Enrich & Correlate]
+        Detect[Detect Threats]
+    end
+
+    subgraph Storage["Storage"]
+        Hot[OpenSearch - Hot]
+        Warm[Security Lake - Warm]
+        Cold[S3 Glacier - Cold]
+    end
+
+    subgraph Output["Output"]
+        Dashboard[SIEM Dashboard]
+        Alerts[Security Alerts]
+        Reports[Compliance Reports]
+        SOAR[Automated Response]
+    end
+
+    AWS --> Kinesis
+    OnPrem --> Agents
+    SaaS --> Agents
+    Agents --> Kinesis
+    Kinesis --> Parse
+    Parse --> Enrich
+    Enrich --> Detect
+    Enrich --> Hot
+    Hot --> Warm
+    Warm --> Cold
+    Hot --> Dashboard
+    Detect --> Alerts
+    Hot --> Reports
+    Alerts --> SOAR
+```

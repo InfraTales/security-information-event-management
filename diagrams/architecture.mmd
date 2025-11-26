@@ -1,0 +1,58 @@
+```mermaid
+graph TD
+    subgraph Sources["Log Sources"]
+        CT[CloudTrail]
+        VPC[VPC Flow Logs]
+        GD[GuardDuty]
+        WAF[WAF Logs]
+        Apps[Application Logs]
+    end
+
+    subgraph Ingestion["Ingestion Layer"]
+        Kinesis[Kinesis Data Streams]
+        Firehose[Kinesis Firehose]
+    end
+
+    subgraph Processing["Processing Layer"]
+        Parser[Log Parser Lambda]
+        Enricher[Enrichment Lambda]
+        Correlator[Correlation Engine]
+    end
+
+    subgraph Detection["Detection Layer"]
+        Rules[Detection Rules]
+        ML[ML Anomaly Detection]
+        ThreatIntel[Threat Intelligence]
+    end
+
+    subgraph Storage["Storage Layer"]
+        OpenSearch[OpenSearch Service]
+        SecurityLake[Security Lake]
+        S3[S3 Archives]
+    end
+
+    subgraph Response["Response Layer"]
+        Alerts[CloudWatch Alarms]
+        SOAR[Automated Response]
+        Dashboard[SIEM Dashboard]
+    end
+
+    CT --> Kinesis
+    VPC --> Kinesis
+    GD --> Kinesis
+    WAF --> Kinesis
+    Apps --> Kinesis
+    Kinesis --> Parser
+    Parser --> Enricher
+    Enricher --> Correlator
+    Correlator --> Rules
+    Correlator --> ML
+    ThreatIntel --> Rules
+    Rules --> Alerts
+    ML --> Alerts
+    Enricher --> OpenSearch
+    Enricher --> SecurityLake
+    SecurityLake --> S3
+    OpenSearch --> Dashboard
+    Alerts --> SOAR
+```
