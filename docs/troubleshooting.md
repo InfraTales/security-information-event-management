@@ -98,4 +98,4 @@ Common issues and resolutions for the **SIEM Platform**.
 - Check OpenSearch storage – enable lifecycle policies
 - Review Kinesis shard count
 
-> For architecture details, see `ARCHITECTURE.md`.
+> For architecture details, see the project README.
