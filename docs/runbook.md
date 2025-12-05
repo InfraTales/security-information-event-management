@@ -1,98 +1,70 @@
-# Runbook
+# Operations Runbook
 
-Operational guide for deploying, operating, and maintaining the **SIEM Platform**.
+## Overview
+This runbook provides operational procedures for managing and maintaining this infrastructure.
 
-## 1. Deployment
+## Prerequisites
+- AWS CLI configured
+- Terraform/CDK/Pulumi installed
+- Appropriate IAM permissions
 
-### Prerequisites
+## Common Operations
 
-- AWS CLI configured with appropriate credentials
-- Terraform 1.5+ installed
-- Access to target AWS accounts (security, log archive, workloads)
-
-### Deploy Steps
-
+### Deployment
 ```bash
-# Initialize Terraform
-terraform init
+# Development
+./scripts/deploy.sh dev
 
-# Plan deployment (dev)
-terraform plan -var="environment=dev" -out=tfplan
-
-# Apply deployment
-terraform apply tfplan
-
-# For production
-terraform plan -var="environment=prod" -out=tfplan
-terraform apply tfplan
+# Production
+./scripts/deploy.sh prod
 ```
 
-## 2. Log Source Onboarding
+### Monitoring
+- CloudWatch Dashboard: Check AWS Console
+- Alerts: Configured via SNS
+- Logs: CloudWatch Logs
 
-### Adding a New Log Source
+### Troubleshooting
 
-1. Create log subscription in source account
-2. Configure Kinesis cross-account access
-3. Add log parser configuration
-4. Test log flow end-to-end
-5. Create detection rules for new source
+#### Issue: Deployment Fails
+**Symptoms**: Terraform/CDK apply fails
+**Resolution**:
+1. Check AWS credentials
+2. Verify IAM permissions
+3. Review error logs
+4. Check resource quotas
 
-### Common Log Sources
+#### Issue: High Costs
+**Symptoms**: Unexpected AWS charges
+**Resolution**:
+1. Review Cost Explorer
+2. Check for unused resources
+3. Verify auto-scaling policies
+4. Review instance types
 
-- CloudTrail (all accounts)
-- VPC Flow Logs
-- GuardDuty findings
-- WAF logs
-- Application logs
+### Maintenance Windows
+- Preferred: Sunday 02:00-06:00 UTC
+- Avoid: Business hours (09:00-17:00 local time)
 
-## 3. Monitoring
+### Escalation
+1. Team Lead
+2. DevOps Manager
+3. On-call Engineer
 
-### Key Metrics to Watch
+## Emergency Procedures
 
-- **Log ingestion rate**: Kinesis incoming records
-- **Processing latency**: Lambda duration metrics
-- **OpenSearch health**: Cluster status, disk usage
-- **Detection alerts**: Alert volume and false positive rate
-
-### Dashboards
-
-Pre-configured dashboards for:
-
-- Security operations overview
-- Threat detection summary
-- Compliance status
-- Log ingestion health
-
-## 4. Incident Response
-
-### Alert Triage Workflow
-
-1. Review alert in SIEM dashboard
-2. Correlate with related events
-3. Investigate affected resources
-4. Document findings
-5. Escalate or close with resolution
-
-### Forensics
-
+### Rollback
 ```bash
-# Export logs for investigation
-aws s3 cp s3://siem-archives/2024/01/15/ ./investigation/ --recursive
+# Terraform
+terraform apply -var-file=previous.tfvars
+
+# CDK
+cdk deploy --previous-version
+
+# Pulumi
+pulumi stack select previous
+pulumi up
 ```
 
-## 5. Maintenance
-
-### Regular Tasks
-
-- Review and tune detection rules monthly
-- Update threat intelligence feeds weekly
-- Archive old logs per retention policy
-- Patch OpenSearch cluster quarterly
-
-### Teardown
-
-```bash
-terraform destroy -var="environment=dev"
-```
-
-> For troubleshooting common issues, see `docs/troubleshooting.md`.
+### Disaster Recovery
+See [DISASTER_RECOVERY.md](DISASTER_RECOVERY.md)
